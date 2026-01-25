@@ -7,11 +7,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
-
 import com.example.scholarpro.databinding.FragmentFirstBinding;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -20,36 +19,74 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IFillFormatter;
 import com.github.mikephil.charting.interfaces.dataprovider.LineDataProvider;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
-import com.jjoe64.graphview.series.DataPoint;
-
-
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class FirstFragment extends Fragment {
 
     private FragmentFirstBinding binding;
+    private TextView currentCGPA;
+    private GraphCalculator calculator;
+
+
 
     public void plotPoints(View view) {
         LineChart chart = view.findViewById(R.id.chart);
 
-        GraphCalculator calculator = new GraphCalculator();
-        List<DataPoint> points = calculator.calculateParabola(-100, 100);
+
+
+        calculator = new GraphCalculator();
+        //List<DataPoint> points = calculator.calculateParabola(-100, 100);
+
+        //calculator.addCGPA(3.0);
+        //calculator.addCGPA(3.5);
+        //calculator.addCGPA(4.0);
+        //calculator.addCGPA(4.5);
+
+
+
+        calculator.addGrade("A+", 1.00);
+        calculator.addGrade("A", 1.00);
+        calculator.addGrade("A-", 1.00);
+        calculator.calculateCGPA();
+
+        calculator.addGrade("B+", 1.00);
+        calculator.addGrade("A", 1.00);
+        calculator.addGrade("A+", 1.00);
+        calculator.calculateCGPA();
+
+        calculator.addGrade("A+", 1.00);
+        calculator.addGrade("A+", 1.00);
+        calculator.addGrade("A+", 1.00);
+        calculator.calculateCGPA();
+
+        calculator.addGrade("A-", 1.00);
+        calculator.addGrade("A-", 1.00);
+        calculator.addGrade("A-", 1.00);
+        calculator.calculateCGPA();
+
+
+
+        List<Double> cgpaOverTime = calculator.getCgpaOverTime();
+
 
         List<Entry> entries = new ArrayList<>();
-        for (DataPoint p : points) {
-            entries.add(new Entry((float) p.getX(), (float) p.getY()));
+        int step = 0;
+        for (Double p : cgpaOverTime) {
+            entries.add(new Entry((float) step,  p.floatValue()));
+            step += 10;
         }
+
+
 
         LineDataSet dataSet = new LineDataSet(entries, "");
 
-        // 🔴 Line styling
         dataSet.setColor(Color.parseColor("#eb1c24"));
         dataSet.setLineWidth(3f);
         dataSet.setDrawCircles(false);
         dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER); // smooth curve
 
-        // 🌈 Gradient fill (THIS is the magic)
         dataSet.setDrawFilled(true);
         dataSet.setFillFormatter(new IFillFormatter() {
             @Override
@@ -66,13 +103,11 @@ public class FirstFragment extends Fragment {
         );
         dataSet.setFillDrawable(drawable);
 
-        // Clean look
         dataSet.setDrawValues(false);
 
         LineData lineData = new LineData(dataSet);
         chart.setData(lineData);
 
-        // 🔥 Remove all axes, grids, borders
         chart.getDescription().setEnabled(false);
         chart.getLegend().setEnabled(false);
 
@@ -83,6 +118,10 @@ public class FirstFragment extends Fragment {
         chart.setViewPortOffsets(0, 0, 0, 0); // edge-to-edge
         chart.invalidate();
         chart.fitScreen();
+
+        currentCGPA = view.findViewById(R.id.textView);
+        currentCGPA.bringToFront();
+        currentCGPA.setText(String.format(Locale.US ,"Current CGPA: %.2f", calculator.getCurrentCGPA()));
     }
 
 

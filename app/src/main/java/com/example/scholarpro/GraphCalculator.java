@@ -1,8 +1,4 @@
 package com.example.scholarpro;
-
-import android.graphics.Point;
-import android.graphics.PointF;
-
 import com.jjoe64.graphview.series.DataPoint;
 
 import java.util.ArrayList;
@@ -15,10 +11,14 @@ public class GraphCalculator {
     private static final float INITIAL_STEP = 1f;
     private Map<GradeKey, Double> gradeMap;
     private List<DataPoint> points;
+    public ArrayList<Double> cgpaOverTime;
+    private ArrayList<GradeKey> gradeEntryList;
 
     public GraphCalculator() {
         points = new ArrayList<>();
         gradeMap = new HashMap<>();
+        cgpaOverTime = new ArrayList<Double>();
+        gradeEntryList = new ArrayList<GradeKey>();
         initializeGradeMap();
     }
 
@@ -67,23 +67,36 @@ public class GraphCalculator {
 
     }
 
-    public double calculateCGPA(List<Grade> gradeEntryList) {
-        ArrayList<Grade> gradePoints = new ArrayList<Grade>();
+    public void calculateCGPA() {
         double totalGradePoints = 0.0;
-        double totalWeight = 0.0;
+        double totalCredits = 0.0;
 
         for (int i = 0; i < gradeEntryList.size(); i++) {
-            gradePoints.add(gradeEntryList[i]);
-
+            totalGradePoints += gradeMap.get(gradeEntryList.get(i));
+            totalCredits += gradeEntryList.get(i).weight;
         }
 
+        cgpaOverTime.add(totalGradePoints / totalCredits);
+    }
 
-        for (int i = 0; i < gradeEntryList.size(); i++) {
-            totalGradePoints = gradeMap.get(gradeEntryList[i]);
-            totalWeight += gradeEntryList[i][1];
+    public void addCGPA(Double cgpa){
+        cgpaOverTime.add(cgpa);
+    }
 
-        }
-        return totalGradePoints / totalWeight;
+    public void addGrade(String grade, double weight) {
+        gradeEntryList.add(new GradeKey(grade, weight));
+    }
+
+    public Double getCgpaAtX(int x) {
+        return cgpaOverTime.get(x);
+    }
+
+    public List<Double> getCgpaOverTime() {
+        return cgpaOverTime;
+    }
+
+    public Double getCurrentCGPA(){
+        return cgpaOverTime.get(cgpaOverTime.size() - 1);
     }
 
     public List<DataPoint> calculateParabola(float start, float end) {
@@ -93,4 +106,6 @@ public class GraphCalculator {
         }
         return points;
     }
+
+
 }
