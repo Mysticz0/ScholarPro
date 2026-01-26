@@ -9,7 +9,7 @@ import java.util.Map;
 public class GraphCalculator {
 
     private static final float INITIAL_STEP = 1f;
-    private Map<GradeKey, Double> gradeMap;
+    public final Map<GradeKey, Double> gradeMap;
     private List<DataPoint> points;
     public ArrayList<Double> cgpaOverTime;
     private ArrayList<GradeKey> gradeEntryList;
@@ -96,16 +96,15 @@ public class GraphCalculator {
     }
 
     public Double getCurrentCGPA(){
+        if (cgpaOverTime.isEmpty()) {
+            return 0.0;
+        }
         return cgpaOverTime.get(cgpaOverTime.size() - 1);
     }
 
-    public List<DataPoint> calculateParabola(float start, float end) {
+    public void reset(){
+        gradeEntryList.clear();
+        cgpaOverTime.clear();
 
-        for (float x = start; x <= end; x += INITIAL_STEP) {
-            points.add(new DataPoint(x, x * x * x));
-        }
-        return points;
     }
-
-
 }

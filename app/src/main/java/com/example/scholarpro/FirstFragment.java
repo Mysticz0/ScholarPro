@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import com.example.scholarpro.databinding.FragmentFirstBinding;
 import com.github.mikephil.charting.charts.LineChart;
@@ -25,51 +26,24 @@ import java.util.Locale;
 
 public class FirstFragment extends Fragment {
 
+    private CalculatorViewModel viewModel;
     private FragmentFirstBinding binding;
     private TextView currentCGPA;
-    private GraphCalculator calculator;
-
-
 
     public void plotPoints(View view) {
         LineChart chart = view.findViewById(R.id.chart);
-
-
-
-        calculator = new GraphCalculator();
-        //List<DataPoint> points = calculator.calculateParabola(-100, 100);
-
-        //calculator.addCGPA(3.0);
-        //calculator.addCGPA(3.5);
-        //calculator.addCGPA(4.0);
-        //calculator.addCGPA(4.5);
-
-
-
-        calculator.addGrade("A+", 1.00);
-        calculator.addGrade("A", 1.00);
-        calculator.addGrade("A-", 1.00);
-        calculator.calculateCGPA();
-
-        calculator.addGrade("B+", 1.00);
-        calculator.addGrade("A", 1.00);
-        calculator.addGrade("A+", 1.00);
-        calculator.calculateCGPA();
-
-        calculator.addGrade("A+", 1.00);
-        calculator.addGrade("A+", 1.00);
-        calculator.addGrade("A+", 1.00);
-        calculator.calculateCGPA();
-
-        calculator.addGrade("A-", 1.00);
-        calculator.addGrade("A-", 1.00);
-        calculator.addGrade("A-", 1.00);
-        calculator.calculateCGPA();
-
-
+        chart.setNoDataText("");
+        GraphCalculator calculator = viewModel.calculator;
 
         List<Double> cgpaOverTime = calculator.getCgpaOverTime();
+        if (cgpaOverTime.isEmpty()) {
+            chart.clear();
+            chart.invalidate();
 
+            currentCGPA = view.findViewById(R.id.textView);
+            currentCGPA.setText("No grades entered yet");
+            return;
+        }
 
         List<Entry> entries = new ArrayList<>();
         int step = 0;
@@ -77,8 +51,9 @@ public class FirstFragment extends Fragment {
             entries.add(new Entry((float) step,  p.floatValue()));
             step += 10;
         }
-
-
+        if (entries.size() == 1){
+            entries.add(new Entry((float) step, cgpaOverTime.get(0).floatValue()));
+        }
 
         LineDataSet dataSet = new LineDataSet(entries, "");
 
@@ -133,12 +108,16 @@ public class FirstFragment extends Fragment {
     ) {
 
         binding = FragmentFirstBinding.inflate(inflater, container, false);
+
+
         return binding.getRoot();
 
     }
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        viewModel = new ViewModelProvider(requireActivity()).get(CalculatorViewModel.class);
 
         // Post the plotPoints action to the view's message queue. This ensures it runs
         // after the view has been measured and laid out on the screen.
