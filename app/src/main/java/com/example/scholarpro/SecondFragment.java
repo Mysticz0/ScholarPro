@@ -31,19 +31,17 @@ public class SecondFragment extends Fragment {
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        binding.buttonSecond.setOnClickListener(v ->
+        binding.buttonViewChart.setOnClickListener(v ->
                 NavHostFragment.findNavController(SecondFragment.this)
                         .navigate(R.id.action_SecondFragment_to_FirstFragment)
         );
 
-        Button submitButton = view.findViewById(R.id.button_submit_grade);
-        EditText letterGradeEditText = view.findViewById(R.id.editTextLetterGrade);
-        EditText editTextCredit = view.findViewById(R.id.editTextCredit);
+        Button submitButton = binding.buttonSubmitGrade;
+        EditText letterGradeEditText = binding.editTextLetterGrade;
+        EditText editTextCredit = binding.editTextCredit;
 
         CalculatorViewModel viewModel = new ViewModelProvider(requireActivity()).get(CalculatorViewModel.class);
         GraphCalculator calculator = viewModel.calculator;
-
-
 
         submitButton.setOnClickListener(v -> {
             String letterGrade = letterGradeEditText.getText().toString().trim();
@@ -84,7 +82,6 @@ public class SecondFragment extends Fragment {
                         Toast.LENGTH_SHORT
                 ).show();
             }
-
         });
 
     }
@@ -94,5 +91,4 @@ public class SecondFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
-
 }

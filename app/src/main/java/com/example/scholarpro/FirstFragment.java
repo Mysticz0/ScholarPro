@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,19 +29,21 @@ public class FirstFragment extends Fragment {
 
     private CalculatorViewModel viewModel;
     private FragmentFirstBinding binding;
-    private TextView currentCGPA;
 
-    public void plotPoints(View view) {
-        LineChart chart = view.findViewById(R.id.chart);
+
+    public void plotPoints() {
+        LineChart chart = binding.chart;
         chart.setNoDataText("");
         GraphCalculator calculator = viewModel.calculator;
+        TextView currentCGPA;
+        Button nextButton;
 
         List<Double> cgpaOverTime = calculator.getCgpaOverTime();
         if (cgpaOverTime.isEmpty()) {
             chart.clear();
             chart.invalidate();
 
-            currentCGPA = view.findViewById(R.id.textView);
+            currentCGPA = binding.currentCgpa;
             currentCGPA.setText("No grades entered yet");
             return;
         }
@@ -94,12 +97,12 @@ public class FirstFragment extends Fragment {
         chart.invalidate();
         chart.fitScreen();
 
-        currentCGPA = view.findViewById(R.id.textView);
+        nextButton = binding.buttonAddGrades;
+        nextButton.bringToFront();
+        currentCGPA = binding.currentCgpa;
         currentCGPA.bringToFront();
         currentCGPA.setText(String.format(Locale.US ,"Current CGPA: %.2f", calculator.getCurrentCGPA()));
     }
-
-
 
     @Override
     public View onCreateView(
@@ -121,19 +124,16 @@ public class FirstFragment extends Fragment {
 
         // Post the plotPoints action to the view's message queue. This ensures it runs
         // after the view has been measured and laid out on the screen.
-        view.post(() -> plotPoints(view));
-        binding.buttonFirst.setOnClickListener(v ->
+        view.post(this::plotPoints);
+        binding.buttonAddGrades.setOnClickListener(v ->
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment)
         );
     }
-
-
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
-
 }

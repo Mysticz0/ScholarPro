@@ -11,11 +11,11 @@
 
 
     <Button
-        android:id="@+id/button_second"
+        android:id="@+id/buttonViewChart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/previous"
-        android:backgroundTint="#55ED4249"
+        android:text="@string/view_chart_button_label"
+        android:backgroundTint="#ED4249"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
@@ -25,10 +25,10 @@
 
 
     <Button
-        android:id="@+id/button_submit_grade"
+        android:id="@+id/buttonSubmitGrade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#55ED4249"
+        android:backgroundTint="#ED4249"
         android:text="@string/submit_grade_button_label"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

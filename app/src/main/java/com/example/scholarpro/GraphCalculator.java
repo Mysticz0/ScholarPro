@@ -1,5 +1,4 @@
 package com.example.scholarpro;
-import com.jjoe64.graphview.series.DataPoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,14 +7,11 @@ import java.util.Map;
 
 public class GraphCalculator {
 
-    private static final float INITIAL_STEP = 1f;
     public final Map<GradeKey, Double> gradeMap;
-    private List<DataPoint> points;
     public ArrayList<Double> cgpaOverTime;
     private ArrayList<GradeKey> gradeEntryList;
 
     public GraphCalculator() {
-        points = new ArrayList<>();
         gradeMap = new HashMap<>();
         cgpaOverTime = new ArrayList<Double>();
         gradeEntryList = new ArrayList<GradeKey>();
@@ -77,10 +73,6 @@ public class GraphCalculator {
         }
 
         cgpaOverTime.add(totalGradePoints / totalCredits);
-    }
-
-    public void addCGPA(Double cgpa){
-        cgpaOverTime.add(cgpa);
     }
 
     public void addGrade(String grade, double weight) {
