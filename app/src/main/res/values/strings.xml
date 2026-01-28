@@ -7,9 +7,13 @@
     <string name="submit_grade_button_label">Submit Grade"</string>
     <string name="add_grades_button_label">Add Grades</string>
     <string name="view_chart_button_label">View Chart</string>
+    <string name="reset_button_label">Reset Grades</string>
+    <string name="average_needed_button_label">Get Average Needed To Keep Scholarship</string>
 
     <string name="credit_hint">0.50</string>
     <string name="grade_hint">B+</string>
+    <string name="remaining_credits_hint">Remaining Credits</string>
     <string name="password_label">password</string>
     <string name="current_cgpa_label">Current CGPA:</string>
+    <string name="average_needed_label">Average Needed:</string>
 </resources>

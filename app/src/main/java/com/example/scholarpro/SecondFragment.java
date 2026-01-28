@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -13,9 +14,12 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import com.example.scholarpro.databinding.FragmentSecondBinding;
 
+import java.util.Locale;
+
 public class SecondFragment extends Fragment {
 
     private FragmentSecondBinding binding;
+
 
     @Override
     public View onCreateView(
@@ -37,8 +41,11 @@ public class SecondFragment extends Fragment {
         );
 
         Button submitButton = binding.buttonSubmitGrade;
+        Button getAverageButton = binding.buttonGetAverage;
         EditText letterGradeEditText = binding.editTextLetterGrade;
         EditText editTextCredit = binding.editTextCredit;
+        EditText editTextCreditsRemaining = binding.editTextCreditsRemaining;
+        TextView averageNeeded = binding.averageNeeded;
 
         CalculatorViewModel viewModel = new ViewModelProvider(requireActivity()).get(CalculatorViewModel.class);
         GraphCalculator calculator = viewModel.calculator;
@@ -83,6 +90,25 @@ public class SecondFragment extends Fragment {
                 ).show();
             }
         });
+        getAverageButton.setOnClickListener(v -> {
+            String creditText = editTextCreditsRemaining.getText().toString().trim();
+
+            if (creditText.isEmpty()) {
+                editTextCreditsRemaining.setError("Credit required");
+                return;
+            }
+
+            Double creditsRemaining = Double.parseDouble(creditText);
+            if (calculator.cgpaOverTime.isEmpty()){
+                averageNeeded.setText("Average Needed: 10.0");
+            } else if (calculator.isAveragePossible(creditsRemaining)){
+                averageNeeded.setText(String.format(Locale.US ,"Average Needed: %.2f", calculator.getAverageNeeded(creditsRemaining)));
+            }
+            else {
+                averageNeeded.setError("Keeping Scholarship is impossible");
+            }
+        });
+
 
     }
 

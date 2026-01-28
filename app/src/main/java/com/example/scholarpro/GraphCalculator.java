@@ -9,7 +9,8 @@ public class GraphCalculator {
 
     public final Map<GradeKey, Double> gradeMap;
     public ArrayList<Double> cgpaOverTime;
-    private ArrayList<GradeKey> gradeEntryList;
+    public ArrayList<GradeKey> gradeEntryList;
+    private static final double SCHOLARSHIP_AVERAGE = 10.0;
 
     public GraphCalculator() {
         gradeMap = new HashMap<>();
@@ -92,6 +93,23 @@ public class GraphCalculator {
             return 0.0;
         }
         return cgpaOverTime.get(cgpaOverTime.size() - 1);
+    }
+
+    public Double getCreditsCompleted(){
+        Double credits = 0.0;
+        for (int i = 0; i < gradeEntryList.size(); i++){
+            credits += gradeEntryList.get(i).weight;
+
+        }
+        return credits;
+    }
+    public Double getAverageNeeded(Double creditsRemaining){
+        Double completeCredits = getCreditsCompleted();
+        return ((SCHOLARSHIP_AVERAGE * (completeCredits + creditsRemaining)) - getCurrentCGPA() * completeCredits) / creditsRemaining;
+    }
+
+    public boolean isAveragePossible(Double creditsRemaining){
+        return getAverageNeeded(creditsRemaining) <= 12.0;
     }
 
     public void reset(){

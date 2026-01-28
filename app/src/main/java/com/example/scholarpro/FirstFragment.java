@@ -27,14 +27,13 @@ import java.util.Locale;
 
 public class FirstFragment extends Fragment {
 
-    private CalculatorViewModel viewModel;
+    public CalculatorViewModel viewModel;
+    public GraphCalculator calculator;
     private FragmentFirstBinding binding;
-
 
     public void plotPoints() {
         LineChart chart = binding.chart;
         chart.setNoDataText("");
-        GraphCalculator calculator = viewModel.calculator;
         TextView currentCGPA;
         Button nextButton;
 
@@ -95,7 +94,6 @@ public class FirstFragment extends Fragment {
 
         chart.setViewPortOffsets(0, 0, 0, 0); // edge-to-edge
         chart.invalidate();
-        chart.fitScreen();
 
         nextButton = binding.buttonAddGrades;
         nextButton.bringToFront();
@@ -121,6 +119,7 @@ public class FirstFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         viewModel = new ViewModelProvider(requireActivity()).get(CalculatorViewModel.class);
+        calculator = viewModel.calculator;
 
         // Post the plotPoints action to the view's message queue. This ensures it runs
         // after the view has been measured and laid out on the screen.
@@ -129,6 +128,13 @@ public class FirstFragment extends Fragment {
                 NavHostFragment.findNavController(FirstFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment)
         );
+
+        binding.buttonReset.setOnClickListener(v -> {
+            if (!calculator.gradeEntryList.isEmpty()) {
+                calculator.reset();
+                plotPoints();
+            }
+        });
     }
 
     @Override
