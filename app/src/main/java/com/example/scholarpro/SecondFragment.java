@@ -1,6 +1,7 @@
 package com.example.scholarpro;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,15 +11,20 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import com.example.scholarpro.databinding.FragmentSecondBinding;
 
 import java.util.Locale;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class SecondFragment extends Fragment {
 
     private FragmentSecondBinding binding;
+    private ApiService apiService;
 
 
     @Override
@@ -28,6 +34,7 @@ public class SecondFragment extends Fragment {
     ) {
 
         binding = FragmentSecondBinding.inflate(inflater, container, false);
+        apiService = RetrofitClient.getClient().create(ApiService.class);
         return binding.getRoot();
 
     }
@@ -47,9 +54,6 @@ public class SecondFragment extends Fragment {
         EditText editTextCreditsRemaining = binding.editTextCreditsRemaining;
         TextView averageNeeded = binding.averageNeeded;
 
-        CalculatorViewModel viewModel = new ViewModelProvider(requireActivity()).get(CalculatorViewModel.class);
-        GraphCalculator calculator = viewModel.calculator;
-
         submitButton.setOnClickListener(v -> {
             String letterGrade = letterGradeEditText.getText().toString().trim();
             String creditText = editTextCredit.getText().toString().trim();
@@ -66,29 +70,40 @@ public class SecondFragment extends Fragment {
                 return;
             }
 
-            Double credit = Double.parseDouble(creditText);
+            double credit = Double.parseDouble(creditText);
 
-            GradeKey newGrade = new GradeKey(letterGrade, credit);
+            GradeRequest request = new GradeRequest(letterGrade, credit);
+            apiService.addGrade(request).enqueue(new Callback<>() {
+                @Override
+                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Toast.makeText(
+                                requireContext(),
+                                "Grade Saved!",
+                                Toast.LENGTH_SHORT
+                        ).show();
 
-            if (calculator.gradeMap.containsKey(newGrade)){
-                calculator.addGrade(letterGrade, credit);
-                calculator.calculateCGPA();
+                        letterGradeEditText.setText("");
+                        editTextCredit.setText("");
+                    } else {
+                        Toast.makeText(
+                                requireContext(),
+                                "Invalid Grade",
+                                Toast.LENGTH_SHORT
+                        ).show();
+                    }
+                }
 
-                Toast.makeText(
-                        requireContext(),
-                        "Grade Saved!",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                letterGradeEditText.setText("");
-                editTextCredit.setText("");
-            } else {
-                Toast.makeText(
-                        requireContext(),
-                        "Invalid Grade",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
+                @Override
+                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                    Log.e("API Error", "Failed to add grade", t);
+                    Toast.makeText(
+                            requireContext(),
+                            "Error: " + t.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
         });
         getAverageButton.setOnClickListener(v -> {
             String creditText = editTextCreditsRemaining.getText().toString().trim();
@@ -98,15 +113,35 @@ public class SecondFragment extends Fragment {
                 return;
             }
 
-            Double creditsRemaining = Double.parseDouble(creditText);
-            if (calculator.cgpaOverTime.isEmpty()){
-                averageNeeded.setText("Average Needed: 10.0");
-            } else if (calculator.isAveragePossible(creditsRemaining)){
-                averageNeeded.setText(String.format(Locale.US ,"Average Needed: %.2f", calculator.getAverageNeeded(creditsRemaining)));
-            }
-            else {
-                averageNeeded.setError("Keeping Scholarship is impossible");
-            }
+            double creditsRemaining = Double.parseDouble(creditText);
+            ScholarshipRequest request = new ScholarshipRequest(creditsRemaining);
+            apiService.checkScholarship(request).enqueue(new Callback<>() {
+                @Override
+                public void onResponse(@NonNull Call<Map<String, Object>> call, @NonNull Response<Map<String, Object>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        Map<String, Object> result = response.body();
+                        Double averageNeededValue = (Double) result.get("averageNeeded");
+                        Boolean isPossible = (Boolean) result.get("isPossible");
+
+                        if (isPossible != null && isPossible) {
+                            averageNeeded.setText(String.format(Locale.US, "Average Needed: %.2f", averageNeededValue));
+                            averageNeeded.setError(null);
+                        } else {
+                            averageNeeded.setText(R.string.scholarship_impossible);
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Map<String, Object>> call, @NonNull Throwable t) {
+                    Log.e("API Error", "Failed to check scholarship", t);
+                    Toast.makeText(
+                            requireContext(),
+                            "Error: " + t.getMessage(),
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+            });
         });
 
 

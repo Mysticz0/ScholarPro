@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("unused")
 public class GraphCalculator {
 
     public final Map<GradeKey, Double> gradeMap;
@@ -14,8 +15,8 @@ public class GraphCalculator {
 
     public GraphCalculator() {
         gradeMap = new HashMap<>();
-        cgpaOverTime = new ArrayList<Double>();
-        gradeEntryList = new ArrayList<GradeKey>();
+        cgpaOverTime = new ArrayList<>();
+        gradeEntryList = new ArrayList<>();
         initializeGradeMap();
     }
 
@@ -69,8 +70,11 @@ public class GraphCalculator {
         double totalCredits = 0.0;
 
         for (int i = 0; i < gradeEntryList.size(); i++) {
-            totalGradePoints += gradeMap.get(gradeEntryList.get(i));
-            totalCredits += gradeEntryList.get(i).weight;
+            Double gradeValue = gradeMap.get(gradeEntryList.get(i));
+            if (gradeValue != null) {
+                totalGradePoints += gradeValue;
+                totalCredits += gradeEntryList.get(i).weight;
+            }
         }
 
         cgpaOverTime.add(totalGradePoints / totalCredits);
@@ -80,7 +84,7 @@ public class GraphCalculator {
         gradeEntryList.add(new GradeKey(grade, weight));
     }
 
-    public Double getCgpaAtX(int x) {
+    public double getCgpaAtX(int x) {
         return cgpaOverTime.get(x);
     }
 
@@ -88,27 +92,27 @@ public class GraphCalculator {
         return cgpaOverTime;
     }
 
-    public Double getCurrentCGPA(){
+    public double getCurrentCGPA(){
         if (cgpaOverTime.isEmpty()) {
             return 0.0;
         }
         return cgpaOverTime.get(cgpaOverTime.size() - 1);
     }
 
-    public Double getCreditsCompleted(){
-        Double credits = 0.0;
+    public double getCreditsCompleted(){
+        double credits = 0.0;
         for (int i = 0; i < gradeEntryList.size(); i++){
             credits += gradeEntryList.get(i).weight;
 
         }
         return credits;
     }
-    public Double getAverageNeeded(Double creditsRemaining){
-        Double completeCredits = getCreditsCompleted();
+    public double getAverageNeeded(double creditsRemaining){
+        double completeCredits = getCreditsCompleted();
         return ((SCHOLARSHIP_AVERAGE * (completeCredits + creditsRemaining)) - getCurrentCGPA() * completeCredits) / creditsRemaining;
     }
 
-    public boolean isAveragePossible(Double creditsRemaining){
+    public boolean isAveragePossible(double creditsRemaining){
         return getAverageNeeded(creditsRemaining) <= 12.0;
     }
 

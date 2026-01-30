@@ -16,4 +16,6 @@
     <string name="password_label">password</string>
     <string name="current_cgpa_label">Current CGPA:</string>
     <string name="average_needed_label">Average Needed:</string>
+    <string name="scholarship_impossible">Keeping Scholarship is impossible</string>
+    <string name="no_grades_entered">No grades entered yet</string>
 </resources>
